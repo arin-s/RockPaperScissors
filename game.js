@@ -12,32 +12,35 @@ let score = 0;
 let turn = 1;
 
 function playRound(playerSelection) {
-    let computerSelection = getComputerChoice();
-    let state;
-    //Check for ties
-    if (playerSelection === computerSelection) {
-        log += `\tTie! You both picked ${playerSelection}`;
-        score--;
-    }
-    //Check for victory
-    else if (winStates.get(playerSelection) === computerSelection) {
-        log += `\tWin! ${playerSelection} beats ${computerSelection}`;
-        turn++;
+    if (turn <= 5) {
+        let computerSelection = getComputerChoice();
+        //Check for ties
+        if (playerSelection === computerSelection) {
+            log = `\tTie! You both picked ${playerSelection}`;
+        }
+        //Check for victory
+        else if (winStates.get(playerSelection) === computerSelection) {
+            log = `\tWin! ${playerSelection} beats ${computerSelection}`;
+            turn++;
+            score++;
+        } else {
+            //The only other game state is loss
+            log = `\tLoss! ${computerSelection} beats ${playerSelection}`;
+            turn++;
+            score--;
+        }
     } else {
-        //The only other game state is loss
-        log += `\tLoss! ${computerSelection} beats ${playerSelection}`;
-        state = "loss";
+        doScoring();
     }
-    //
-    doScoring();
+    textDiv.innerText = `${log}\nScore: ${score}`;
 }
 
 function doScoring() {
 
     if (score > 0) {
-        console.log("You won the game!")
+        log = "You won the game!";
     } else {
-        console.log("You lost the game!");
+        log = "You lost the game!";
     }
 
 }
@@ -51,27 +54,37 @@ function getComputerChoice() {
     }
 }
 
+let textDiv;
+
 function startGame() {
     let body = document.querySelector("body");
     document.querySelector("button").remove();
     //Create UI elements
     let rockBtn = document.createElement("button");
     rockBtn.innerText = "Rock";
-    rockBtn.addEventListener("click", playRound("rock"));
+    rockBtn.addEventListener("click", playRound.bind(this, "rock"));
     let paperBtn = document.createElement("button");
     paperBtn.innerText = "Paper";
-    paperBtn.addEventListener("click", playRound("paper"));
+    paperBtn.addEventListener("click", playRound.bind(this, "paper"));
     let scissorsBtn = document.createElement("button");
     scissorsBtn.innerText = "Scissors";
-    scissorsBtn.addEventListener("click", playRound("scissors"));
+    scissorsBtn.addEventListener("click", playRound.bind(this, "scissors"));
 
+    //create divs
+    let gameDiv = document.createElement("div");
+    gameDiv.setAttribute("style",
+        "display: flex; flex-direction: column; justify-content: center; align-items: center"
+    );
     let btnDiv = document.createElement("div");
     btnDiv.setAttribute("style", "display: flex; flex-direction: row;");
-    let imgDiv = document.createElement("div");
-    imgDiv.setAttribute("style", "display: flex; flex-direction: row;");
+    textDiv = document.createElement("div");
+    textDiv.setAttribute("style",
+        "display: flex;"
+    );
     btnDiv.appendChild(rockBtn);
     btnDiv.appendChild(paperBtn);
     btnDiv.appendChild(scissorsBtn);
-    body.appendChild(btnDiv);
-    body.appendChild(imgDiv);
+    gameDiv.appendChild(btnDiv);
+    gameDiv.appendChild(textDiv);
+    body.appendChild(gameDiv);
 }
