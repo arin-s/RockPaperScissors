@@ -1,67 +1,77 @@
 "use strict";
 
-function getComputerChoice() {
-    switch (Math.floor(Math.random() * 3)) {
-        case 0: return "Scissors";
-        case 1: return "Paper";
-        case 2: return "Rock";
-    }
-}
+
 
 const winStates = new Map();
 winStates.set("scissors", "paper");
 winStates.set("paper", "rock");
 winStates.set("rock", "scissors");
 
-const validInput = ["scissors", "paper", "rock", "quit"];
+let log;
+let score = 0;
+let turn = 1;
 
-function playRound(playerSelection, computerSelection) {
-    playerSelection = playerSelection.toLowerCase();
-    computerSelection = computerSelection.toLowerCase();
-    if (!validInput.includes(playerSelection)) {
-        return "invalid";
-    }
+function playRound(playerSelection) {
+    let computerSelection = getComputerChoice();
+    let state;
+    //Check for ties
     if (playerSelection === computerSelection) {
-        console.log(`\tTie! You both picked ${playerSelection}`);
-        return "tie";
+        log += `\tTie! You both picked ${playerSelection}`;
+        score--;
     }
-    if (winStates.get(playerSelection) === computerSelection) {
-        console.log(`\tWin! ${playerSelection} beats ${computerSelection}`);
-        return "win";
+    //Check for victory
+    else if (winStates.get(playerSelection) === computerSelection) {
+        log += `\tWin! ${playerSelection} beats ${computerSelection}`;
+        turn++;
+    } else {
+        //The only other game state is loss
+        log += `\tLoss! ${computerSelection} beats ${playerSelection}`;
+        state = "loss";
     }
-    if (playerSelection === "quit") {
-        return "quit";
-    }
-    console.log(`\tLoss! ${computerSelection} beats ${playerSelection}`);
-    return "loss";
+    //
+    doScoring();
 }
 
-function playGame() {
-    let score = 0;
-    console.log("Let the game begin!")
-    for (let i = 0; i < 5; i++) {
-        let input = prompt("What is your move?");
-        let result = playRound(input, getComputerChoice());
-        if (result === "quit") {
-            break;
-        }
-        switch (result) {
-            case "invalid":
-                console.log("Invalid move, try again.");
-            case "tie":
-                i--;
-                continue;
-            case "win":
-                score++;
-                continue;
-            case "loss":
-                score--;
-                continue;
-        }
-    }
+function doScoring() {
+
     if (score > 0) {
         console.log("You won the game!")
     } else {
         console.log("You lost the game!");
     }
+
+}
+
+
+function getComputerChoice() {
+    switch (Math.floor(Math.random() * 3)) {
+        case 0: return "scissors";
+        case 1: return "paper";
+        case 2: return "rock";
+    }
+}
+
+function startGame() {
+    let body = document.querySelector("body");
+    document.querySelector("button").remove();
+    //Create UI elements
+    let rockBtn = document.createElement("button");
+    rockBtn.innerText = "Rock";
+    rockBtn.addEventListener("click", playRound("rock"));
+    let paperBtn = document.createElement("button");
+    paperBtn.innerText = "Paper";
+    paperBtn.addEventListener("click", playRound("paper"));
+    let scissorsBtn = document.createElement("button");
+    scissorsBtn.innerText = "Scissors";
+    scissorsBtn.addEventListener("click", playRound("scissors"));
+
+    let btnDiv = document.createElement("div");
+    btnDiv.setAttribute("style", "display: flex; flex-direction: row;");
+    let imgDiv = document.createElement("div");
+    imgDiv.setAttribute("style", "display: flex; flex-direction: row;");
+    btnDiv.appendChild(rockBtn);
+    btnDiv.appendChild(paperBtn);
+    btnDiv.appendChild(scissorsBtn);
+    body.appendChild(btnDiv);
+    body.appendChild(imgDiv);
 }
